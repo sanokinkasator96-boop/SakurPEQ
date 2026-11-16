@@ -1,43 +1,34 @@
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.compose)
-}
-
-private val gitCommitsCount: Int by lazy {
-    ProcessBuilder("git", "rev-list", "--count", "HEAD")
-        .redirectErrorStream(true)
-        .start().inputStream.bufferedReader().readLine().trim().toInt()
-}
-
-kotlin {
-    jvmToolchain(libs.versions.jdk.get().toInt())
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
+    id("org.jetbrains.kotlin.plugin.compose")
 }
 
 android {
     namespace = "org.michaelbel.myapplication"
-    compileSdk = libs.versions.compile.sdk.get().toInt()
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "org.michaelbel.myapplication"
-        minSdk = libs.versions.min.sdk.get().toInt()
-        targetSdk = libs.versions.target.sdk.get().toInt()
-        versionCode = gitCommitsCount
-        versionName = "1.0.0"
-    }
-
-    signingConfigs {
-        getByName("debug") {
-            keyAlias = "myapplication"
-            keyPassword = "password"
-            storeFile = rootProject.file(".github/debug-key.jks")
-            storePassword = "password"
-        }
+        minSdk = 28
+        targetSdk = 35
+        versionCode = 1
+        versionName = "1.0"
     }
 
     buildTypes {
-        debug {
-            signingConfig = signingConfigs.getByName("debug")
+        release {
+            isMinifyEnabled = false
         }
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = "17"
     }
 
     buildFeatures {
@@ -45,22 +36,11 @@ android {
     }
 }
 
-base {
-    archivesName.set("MyApplication-v${android.defaultConfig.versionName}(${android.defaultConfig.versionCode})")
-}
-
 dependencies {
-    implementation(libs.google.material)
-    implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.compose.material3)
-    implementation(libs.androidx.core.splashscreen)
-    debugImplementation(libs.androidx.compose.ui.tooling)
-}
-
-tasks.register("printVersion") {
-    description = "Prints the current versionName and versionCode to stdout."
-    doLast {
-        println("VERSION_NAME=${android.defaultConfig.versionName}")
-        println("VERSION_CODE=${android.defaultConfig.versionCode}")
-    }
+    implementation("androidx.core:core-ktx:1.15.0")
+    implementation("androidx.activity:activity-compose:1.9.3")
+    implementation(platform("androidx.compose:compose-bom:2024.11.00"))
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.ui:ui-graphics")
+    implementation("androidx.compose.material3:material3")
 }
